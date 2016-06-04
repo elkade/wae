@@ -3,12 +3,10 @@ test <- function (popSize, numIslands, pcrossover, pmutation, migrationRate, mig
     if (length(x) != length(y))
       stop()
     m <- matrix(c(x,y),nrow=length(x))
-    
-    cec2013(funNum,m)
-  
+    return(cec2013(funNum,m))
   }
-  maxFes = 20000
-  maxIter = floor(maxFes / popSize)
+  
+  maxIter = 100
 
   min <- -100; max <- 100
   x <- seq(min, max, by = 1)
@@ -23,7 +21,8 @@ test <- function (popSize, numIslands, pcrossover, pmutation, migrationRate, mig
   GaClassicList <- c()
   GaIslandsList <- c()
   
-  for (i in 1:5) {
+  for (i in 1:10) {
+    fes<<-0
     GaClassic <- ga(type = "real-valued",
                     fitness = fitness,
                     min = minPoint,
@@ -34,49 +33,53 @@ test <- function (popSize, numIslands, pcrossover, pmutation, migrationRate, mig
                     elitism = 0,
                     pmutation = pmutation,
                     pcrossover = pcrossover,
-                    selection = gareal_rwSelection)
+                    selection = gareal_rwSelection,
+                    parallel = FALSE,
+                    monitor = FALSE)
     GaClassicList[[i]] <- GaClassic@fitnessValue
     
-    # GaIslands <- gaisl(type = "real-valued", 
-    #                    fitness =  fitness,
-    #                    min = minPoint,
-    #                    max = maxPoint, 
-    #                    popSize = popSize,
-    #                    maxiter = maxIter,
-    #                    run = maxIter,
-    #                    elitism = 0,
-    #                    pcrossover = pcrossover,
-    #                    pmutation = pmutation,
-    #                    
-    #                    selection = gareal_rwSelection,
-    #                    numIslands = numIslands, 
-    #                    migrationRate = migrationRate,
-    #                    migrationInterval = migrationInterval,
-    #                    parallel = FALSE)
-    # 
-    # GaIslandsList[[i]] <- GaIslands@fitnessValue
-    print(summary(GaClassic))
+    GaIslands <- gaisl(type = "real-valued",
+                       fitness =  fitness,
+                       min = minPoint,
+                       max = maxPoint,
+                       popSize = popSize,
+                       maxiter = maxIter,
+                       run = maxIter,
+                       elitism = 0,
+                       pcrossover = pcrossover,
+                       pmutation = pmutation,
+
+                       selection = gareal_rwSelection,
+                       numIslands = numIslands,
+                       migrationRate = migrationRate,
+                       migrationInterval = migrationInterval,
+                       parallel = FALSE,
+                       monitor = FALSE)
+
+    GaIslandsList[[i]] <- GaIslands@fitnessValue
   }
-  print(GaClassicList)
+  print("Klasyczny: ")
+  print(paste('best: ',max(GaClassicList)))
+  print(paste('worst: ',min(GaClassicList)))
+  print(paste('mediana: ',median(GaClassicList)))
+  print(paste('œrednia: ',mean(GaClassicList)))
+  print(paste('odchynenie: ',sd(GaClassicList)))
+  
+  print('Wyspowy: ')
+  print(paste('best: ',max(GaIslandsList)))
+  print(paste('worst: ',min(GaIslandsList)))
+  print(paste('mediana: ',median(GaIslandsList)))
+  print(paste('œrednia: ',mean(GaIslandsList)))
+  print(paste('odchynenie: ',sd(GaIslandsList)))
 }
-test(70,
-     2,
-     0,
-     0.005,
-     0.05,
-     35,
-     9)
-testAllCec <- function (popSize, numIslands, pcrossover, pmutation, migrationRate, migrationInterval){
-  for (funNum in 1:28) {
-    test(popsize,
-         numIslands,
-         pcrossover,
-         pmutation,
-         migrationRate,
-         migrationInterval,
-         funNum)
-  }
-}
+# test(70,
+#      2,
+#      0,
+#      0.005,
+#      0.05,
+#      35,
+#      9)
+
 
 
 popSizeSeq =            seq(70,120,by=10)
@@ -86,22 +89,34 @@ pmutationSeq =          seq(0.005,0.02,by=0.005)
 migrationRateSeq =      seq(0.05,0.3,by=0.05)
 migrationIntervalSeq =  seq(35,65,by=5)
 
-
-for (popsize in popSizeSeq){
-  for (numIslands in numIslandsSeq){
-    for (pcrossover in pcrossoverSeq){
-      for (pmutation in pmutationSeq){
-        for (migrationRate in migrationRateSeq){
-          for (migrationInterval in migrationIntervalSeq){
-            testAllCec(popsize,
-                 numIslands,
-                 pcrossover,
-                 pmutation,
-                 migrationRate,
-                 migrationInterval)
+for (funNum in 1:28) {
+  print(paste('Funkcja: ',funNum))
+  for (popsize in popSizeSeq){
+    for (numIslands in numIslandsSeq){
+      for (pcrossover in pcrossoverSeq){
+        for (pmutation in pmutationSeq){
+          for (migrationRate in migrationRateSeq){
+            for (migrationInterval in migrationIntervalSeq){
+              
+              print(paste('Parametry: ',popsize,
+                          numIslands,
+                          pcrossover,
+                          pmutation,
+                          migrationRate,
+                          migrationInterval,'\n', sep=" "))
+              
+              test(popsize,
+                   numIslands,
+                   pcrossover,
+                   pmutation,
+                   migrationRate,
+                   migrationInterval,
+                   funNum)
+            }
           }
         }
       }
     }
   }
+}
 }
