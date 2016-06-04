@@ -1,12 +1,15 @@
-test <- function (i, popSize, maxIter){
+test <- function (popSize, numIslands, pcrossover, pmutation, migrationRate, migrationInterval, funNum){
   f <- function(x, y){
     if (length(x) != length(y))
       stop()
     m <- matrix(c(x,y),nrow=length(x))
     
-    cec2013(i,m)
+    cec2013(funNum,m)
   
   }
+  maxFes = 20000
+  maxIter = floor(maxFes / popSize)
+
   min <- -100; max <- 100
   x <- seq(min, max, by = 1)
   y <- seq(min, max, by = 1)
@@ -17,36 +20,88 @@ test <- function (i, popSize, maxIter){
   minPoint = c(min,min)
   maxPoint = c(max,max)
   
-  b = FALSE
-  if(b){
-  GA <- ga(type = "real-valued",
-            fitness = fitness,
-            min = minPoint,
-            max = maxPoint,
-            popSize = popSize,
-            maxiter = maxIter,
-            elitism = 0,
-            pmutation = 0.1,
-            pcrossover = 0,
-            selection = gareal_rwSelection)
-  }else{
-  GA <- gaisl(type = "real-valued", 
-            fitness =  fitness,
-            min = minPoint,
-            max = maxPoint, 
-            popSize = popSize,
-            maxiter = maxIter,
-            elitism = 0,
-            pcrossover = 0,
-            pmutation = 0.1,
-            
-            selection = gareal_rwSelection,
-            numIslands = 4, 
-            migrationRate = 0.2,
-            migrationInterval = 50,
-            parallel = FALSE)
+  GaClassicList <- c()
+  GaIslandsList <- c()
+  
+  for (i in 1:5) {
+    GaClassic <- ga(type = "real-valued",
+                    fitness = fitness,
+                    min = minPoint,
+                    max = maxPoint,
+                    popSize = popSize,
+                    maxiter = maxIter,
+                    run = maxIter,
+                    elitism = 0,
+                    pmutation = pmutation,
+                    pcrossover = pcrossover,
+                    selection = gareal_rwSelection)
+    GaClassicList[[i]] <- GaClassic@fitnessValue
+    
+    # GaIslands <- gaisl(type = "real-valued", 
+    #                    fitness =  fitness,
+    #                    min = minPoint,
+    #                    max = maxPoint, 
+    #                    popSize = popSize,
+    #                    maxiter = maxIter,
+    #                    run = maxIter,
+    #                    elitism = 0,
+    #                    pcrossover = pcrossover,
+    #                    pmutation = pmutation,
+    #                    
+    #                    selection = gareal_rwSelection,
+    #                    numIslands = numIslands, 
+    #                    migrationRate = migrationRate,
+    #                    migrationInterval = migrationInterval,
+    #                    parallel = FALSE)
+    # 
+    # GaIslandsList[[i]] <- GaIslands@fitnessValue
+    print(summary(GaClassic))
   }
-  summary(GA)
-  plot(GA)
+  print(GaClassicList)
 }
-test(9, 100, 100)
+test(70,
+     2,
+     0,
+     0.005,
+     0.05,
+     35,
+     9)
+testAllCec <- function (popSize, numIslands, pcrossover, pmutation, migrationRate, migrationInterval){
+  for (funNum in 1:28) {
+    test(popsize,
+         numIslands,
+         pcrossover,
+         pmutation,
+         migrationRate,
+         migrationInterval,
+         funNum)
+  }
+}
+
+
+popSizeSeq =            seq(70,120,by=10)
+numIslandsSeq =         seq(2,8,by=1)
+pcrossoverSeq =         seq(0,0.6,by=0.3)
+pmutationSeq =          seq(0.005,0.02,by=0.005)
+migrationRateSeq =      seq(0.05,0.3,by=0.05)
+migrationIntervalSeq =  seq(35,65,by=5)
+
+
+for (popsize in popSizeSeq){
+  for (numIslands in numIslandsSeq){
+    for (pcrossover in pcrossoverSeq){
+      for (pmutation in pmutationSeq){
+        for (migrationRate in migrationRateSeq){
+          for (migrationInterval in migrationIntervalSeq){
+            testAllCec(popsize,
+                 numIslands,
+                 pcrossover,
+                 pmutation,
+                 migrationRate,
+                 migrationInterval)
+          }
+        }
+      }
+    }
+  }
+}
