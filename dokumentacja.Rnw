@@ -1,0 +1,72 @@
+
+\documentclass{article}
+\usepackage{verbatim}
+\usepackage[MeX]{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{ pdfstartview={XYZ null null 1}}
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+library(GA)
+library(cec2013)
+source("wae.R")
+opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
+options(formatR.arrow=TRUE,width=90)
+@
+\author{Łukasz Dragan, Mateusz Flis}
+\title{Wstęp do algorytmów ewolucyjnych.\\
+Raport z testów.\\
+Model algorytmu ewolucyjnego z wyspami.\\
+Porównać wyniki uzyskiwane przez wybrany algorytm ewolucyjny z wyspami do klasycznej wersji AE. Testy powinny zostać przeprowadzone na benchmarku CEC 2013.}
+
+\begin{document}
+
+\maketitle
+\section{Zakresy testowe parametrów}
+W związku z faktem, iż po pierwszych próbach empirycznych okazało się, że wykonanie testów zgodnie z pierwotnymi zakresami trwałoby nieakceptowalnie długo (rzędu tysiąca godzin) postanowiliśmy zmodyfikować zakresy testowe.
+<<>>=
+popSizeSeq =            100                       #wielkość populacji
+numIslandsSeq =         seq(2, 8, by=3)           #liczba wysp
+pcrossoverSeq =         c(0, 0.6)                 #prawdopodobieństwo krzyżowania
+pmutationSeq =          0.015                     #prawdopodobieństwo mutacji
+migrationRateSeq =      seq(0.05, 0.35, by=0.15)  #rozmiar migracji
+migrationIntervalSeq =  c(2, 60)                 #interwał między migracjami
+@
+
+
+\section{Implementacja}
+Przy testach używaliśmy bibliotek do języka R: ,,GA'' i ,,cec2013''. ,,GA'' zawiera zarówno klasyczny algorytm ewolucyjny jak i algorytm z modelem wyspowym. Pozwala również określić szereg parametrów wejściowych oraz techniki mutacji, selekcji i krzyżowania.
+Do wywołania funkcji implementujących algorytmy użyliśmy autorskiego kodu w języku R.
+
+
+\section{Metodyka}
+Benchmark ,,cec2013'' zawiera 28 funkcji, które poddawaliśmy minimalizacji przy użyciu testowanych algorytmów. Dla wszystkich testów użyliśmy następujących ustawień: liczba wymiarów: $2$, przesztrzeń przeszukiwań: $[-100, 100]^2$. 
+Dla każdej z funkcji benchmarku, dla każdej z kombinacji parametrów wejściowych algorytmów przeprowadziliśmy po 10 wywołań funkcji implementujących algorytm. Następnie wyniki działania algorytmów zostały zestawione w tabeli porównującej następujące statystyki: $maksimum$, $minimum$, $mediana$, $średnia$, $odchylenie\ standardowe$. Poszczególne wyniki opatrzyliśmy wykresami obrazującymi przebieg algorytmów. 
+\section{Wyniki testów}
+
+<<echo=FALSE, cache=FALSE>>=
+test(100,
+     2,
+     0.35,
+     0.015,
+     0.35,
+     2,
+     9,
+     TRUE)
+
+
+
+#perform(popSizeSeq, numIslandsSeq, pcrossoverSeq, pmutationSeq, migrationRateSeq, migrationIntervalSeq)
+@
+\section{Interpretacja wyników}
+\end{document}
