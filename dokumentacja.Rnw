@@ -19,6 +19,10 @@
 library(knitr)
 library(GA)
 library(cec2013)
+library(xtable)
+library(doParallel)
+options(xtable.floating = FALSE)
+options(xtable.timestamp = "")
 source("wae.R")
 opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
 options(formatR.arrow=TRUE,width=90)
@@ -35,12 +39,12 @@ Porównać wyniki uzyskiwane przez wybrany algorytm ewolucyjny z wyspami do klas
 \section{Zakresy testowe parametrów}
 W związku z faktem, iż po pierwszych próbach empirycznych okazało się, że wykonanie testów zgodnie z pierwotnymi zakresami trwałoby nieakceptowalnie długo (rzędu tysiąca godzin) postanowiliśmy zmodyfikować zakresy testowe.
 <<>>=
-popSizeSeq =            100                       #wielkość populacji
-numIslandsSeq =         seq(2, 8, by=3)           #liczba wysp
-pcrossoverSeq =         c(0, 0.6)                 #prawdopodobieństwo krzyżowania
-pmutationSeq =          0.015                     #prawdopodobieństwo mutacji
-migrationRateSeq =      seq(0.05, 0.35, by=0.15)  #rozmiar migracji
-migrationIntervalSeq =  c(2, 60)                 #interwał między migracjami
+popSizeSeq =            100            #wielkość populacji
+numIslandsSeq =         c(2, 8)        #liczba wysp
+pcrossoverSeq =         c(0, 0.35)     #prawdopodobieństwo krzyżowania
+pmutationSeq =          0.015          #prawdopodobieństwo mutacji
+migrationRateSeq =      c(0.05, 0.35)  #rozmiar migracji
+migrationIntervalSeq =  c(10, 33)       #interwał między migracjami
 @
 
 
@@ -50,23 +54,14 @@ Do wywołania funkcji implementujących algorytmy użyliśmy autorskiego kodu w 
 
 
 \section{Metodyka}
-Benchmark ,,cec2013'' zawiera 28 funkcji, które poddawaliśmy minimalizacji przy użyciu testowanych algorytmów. Dla wszystkich testów użyliśmy następujących ustawień: liczba wymiarów: $2$, przesztrzeń przeszukiwań: $[-100, 100]^2$. 
+Benchmark ,,cec2013'' zawiera 28 funkcji, które poddawaliśmy minimalizacji przy użyciu testowanych algorytmów. Dla wszystkich testów użyliśmy następujących ustawień: liczba wymiarów: $2$, przesztrzeń przeszukiwań: $[-100, 100]^2$, liczba\ iteracji: 100, wielkość populacji: 100, prawdopodobieństwo mutacji: 0.015.\\
 Dla każdej z funkcji benchmarku, dla każdej z kombinacji parametrów wejściowych algorytmów przeprowadziliśmy po 10 wywołań funkcji implementujących algorytm. Następnie wyniki działania algorytmów zostały zestawione w tabeli porównującej następujące statystyki: $maksimum$, $minimum$, $mediana$, $średnia$, $odchylenie\ standardowe$. Poszczególne wyniki opatrzyliśmy wykresami obrazującymi przebieg algorytmów. 
 \section{Wyniki testów}
 
-<<echo=FALSE, cache=FALSE>>=
-test(100,
-     2,
-     0.35,
-     0.015,
-     0.35,
-     2,
-     9,
-     TRUE)
-
-
-
-#perform(popSizeSeq, numIslandsSeq, pcrossoverSeq, pmutationSeq, migrationRateSeq, migrationIntervalSeq)
+<<cec2_12,fig.keep='all',fig.show='asis',fig.height=5,echo=FALSE, cache=FALSE>>=
+for (funNum in 2:12) {
+  perform(popSizeSeq, numIslandsSeq, pcrossoverSeq, pmutationSeq, migrationRateSeq, migrationIntervalSeq, funNum)
+}
 @
 \section{Interpretacja wyników}
 \end{document}
